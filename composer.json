@@ -5,8 +5,5 @@
     "license": "GPL-2.0+",
     "extra": {
         "installer-name": "views_menu_extra"
-    },
-    "require": {
-        
     }
 }
