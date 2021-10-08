@@ -1,0 +1,131 @@
+<?php
+/**
+ *
+ */
+
+use Drupal\Component\Plugin\Exception\ContextException;
+use Drupal\Component\Plugin\Exception\MissingValueContextException;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Condition\ConditionPluginCollection;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\Core\Url;
+use Drupal\views\Plugin\views\display\DisplayPluginInterface;
+use Drupal\views\Plugin\ViewsPluginManager;
+use Drupal\views_menu_extra\Plugin\Derivative\ViewsMenuExtraLocalTask;
+use Drupal\views_menu_extra\Plugin\views\access\ViewsMenuExtraAccess;
+use Drupal\views_ui\ViewUI;
+use Symfony\Component\Routing\Route;
+
+/**
+ * hook_form_FORM_id_alter()
+ */
+function views_menu_extra_form_views_ui_edit_display_form_alter(&$form, FormStateInterface $form_state)
+{
+  if ($form_state->get('section') == 'menu') {
+    /** @var ViewUI $view */
+    $view = $form_state->get('view');
+    $display_id = $form_state->get('display_id');
+    $executable = $view->getExecutable();
+    $executable->initDisplay();
+    $display = $executable->displayHandlers->get($display_id);
+    $form['options']['menu']['link'] = [
+      '#title' => 'Make menu link',
+      '#type' => 'checkbox',
+      '#default_value' => !empty($display->options['menu']['link']) ?: FALSE,
+      '#prefix' => '<div class="views-right-70">'
+    ];
+    $form['options']['menu']['local_task_only'] = [
+      '#title' => 'Local task only',
+      '#type' => 'checkbox',
+      '#default_value' => !empty($display->options['menu']['local_task_only']) ?: FALSE,
+      '#description' => t('If you want a menu tab to be created with the local task')
+    ];
+    $form['options']['menu']['local_task_parent'] = [
+      '#title' => 'Local task parent',
+      '#type' => 'select',
+      '#options' => views_menu_extra_local_task_options(),
+      '#default_value' => !empty($display->options['menu']['local_task_parent']) ? $display->options['menu']['local_task_parent'] : "",
+      '#suffix' => '</div>'
+    ];
+  }
+}
+
+/**
+ * Implements @see hook_local_tasks_alter().
+ */
+function views_menu_extra_local_tasks_alter(&$local_tasks)
+{
+  $container = \Drupal::getContainer();
+  $local_task = ViewsMenuExtraLocalTask::create($container, 'views_view');
+  $local_task->alterLocalTasks($local_tasks);
+}
+
+function views_menu_extra_local_task_options()
+{
+  $cid = "views_menu_extra.local_tasks";
+  $cache = \Drupal::cache()->get($cid);
+  if (!$cache) {
+    $routeProvider = \Drupal::service('router.route_provider');
+    $localTasks = \Drupal::service('plugin.manager.menu.local_task');
+    $data = [];
+    foreach ($routeProvider->getAllRoutes() as $route_name => $route) {
+      $local_tasks = $localTasks->getLocalTasksForRoute($route_name);
+      if (!empty($local_tasks)) {
+        foreach ($local_tasks as $tab_level => $items) {
+          $data = array_merge($data, $items);
+        }
+      }
+    }
+    $options = ["" => t('<- None ->')];
+    foreach ($data as $name => $menu) {
+      $definition = $menu->getPluginDefinition();
+      if (empty($definition['parent_id'])) {
+        $options[$name] = $definition['title'] . " ({$name})";
+      }
+    }
+    \Drupal::cache()->set($cid, $options);
+  }
+  else {
+    $options = $cache->data;
+  }
+  return $options;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ * Add tab with custom title and link only to pages of a selected content type
+ */
+function views_menu_extra_menu_local_tasks_alter(&$data, $route_name)
+{
+  /** @var RouteProviderInterface $routeProvider */
+  $routeProvider = \Drupal::service('router.route_provider');
+  if (!empty($data['tabs'][0])) {
+    foreach($data['tabs'][0] as $name => &$item) {
+      /** @var Url  $url */
+      $url = $item['#link']['url'];
+      /** @var Route $route */
+      $route = $routeProvider->getRouteByName($url->getRouteName());
+      $view_id = $route->getDefault('view_id');
+      $display_id = $route->getDefault('display_id');
+      if (empty($view_id) && empty($display_id)) {
+        continue;
+      }
+      $executable = \Drupal::entityTypeManager()->getStorage('view')->load($view_id)->getExecutable();
+      $executable->initDisplay();
+      /** @var DisplayPluginInterface $display */
+      $display = $executable->displayHandlers->get($display_id);
+      $access = $display->getOption('access');
+      if ($access['type'] === 'views_menu_extra_access' && !empty($access['options']['conditions'])) {
+        /** @var ViewsPluginManager $viewsAccess */
+        $viewsAccess = \Drupal::service('plugin.manager.views.access');
+        /** @var ViewsMenuExtraAccess $instance */
+        $instance = $viewsAccess->createInstance('views_menu_extra_access');
+        $instance->options = $access['options'];
+        $item['#access'] = $instance->access(\Drupal::currentUser()) ? AccessResult::allowed() : AccessResult::forbidden();
+      }
+      $executable->destroy();
+    }
+  }
+}

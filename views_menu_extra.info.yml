@@ -1,0 +1,5 @@
+name: Views Menu Extra
+description: "Provide some feature for views menu"
+core_version_requirement: ^8 || ^9 || ^10
+type: module
+package: DNC - Views

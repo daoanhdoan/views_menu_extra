@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Module install file.
+ */
+
+use Drupal\Core\Extension\Extension;
+
+/**
+ * Implements hook_install().
+ */
+function views_menu_extra_install() {
+  module_set_weight("views_menu_extra", 99999);
+}

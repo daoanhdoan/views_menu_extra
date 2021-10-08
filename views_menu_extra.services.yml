@@ -1,0 +1,7 @@
+services:
+  views_menu_extra.route_subscriber:
+    class: Drupal\views_menu_extra\EventSubscriber\ViewsMenuExtraRouteSubscriber
+    arguments: ['@entity_type.manager', '@state', '@router.route_provider']
+    tags:
+      - { name: 'event_subscriber' }
+

@@ -1,0 +1,7 @@
+admin:
+  js:
+    js/views_menu_extra.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupal.form

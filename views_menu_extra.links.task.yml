@@ -1,0 +1,3 @@
+views_menu_extra:
+  class: Drupal\Core\Menu\LocalTaskDefault
+  deriver: \Drupal\views_menu_extra\Plugin\Derivative\ViewsMenuExtraLocalTask
