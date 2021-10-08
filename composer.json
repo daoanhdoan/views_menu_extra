@@ -1,0 +1,12 @@
+{
+    "name" : "daoanhdoan/views_menu_extra",
+    "description": "Views Menu Extra - Provide some feature for views menu",
+    "type" : "drupal-custom-module",
+    "license": "GPL-2.0+",
+    "extra": {
+        "installer-name": "views_menu_extra"
+    },
+    "require": {
+        
+    }
+}
