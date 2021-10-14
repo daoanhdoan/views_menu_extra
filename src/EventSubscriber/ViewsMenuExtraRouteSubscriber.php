@@ -109,6 +109,7 @@ class ViewsMenuExtraRouteSubscriber extends RouteSubscriberBase {
       $route_name = "view.{$view_id}.$display_id";
 
       if ($route = $collection->get($route_name)) {
+        $collection->remove($route_name);
         $path = $route->getPath();
         $split = explode('/', $path);
         array_pop($split);
@@ -122,6 +123,7 @@ class ViewsMenuExtraRouteSubscriber extends RouteSubscriberBase {
             break;
           }
         }
+        $collection->add($route_name, $route);
       }
     }
   }

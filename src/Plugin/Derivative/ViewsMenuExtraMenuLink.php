@@ -17,7 +17,7 @@ class ViewsMenuExtraMenuLink extends ViewsMenuLink {
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    $links = parent::getDerivativeDefinitions($base_plugin_definition);
+    $links = [];
 
     $views = Views::getApplicableViews('uses_menu_links');
 
