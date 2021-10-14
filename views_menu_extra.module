@@ -30,24 +30,39 @@ function views_menu_extra_form_views_ui_edit_display_form_alter(&$form, FormStat
     $executable = $view->getExecutable();
     $executable->initDisplay();
     $display = $executable->displayHandlers->get($display_id);
+
+    $states = [
+      'visible' => [
+        [
+          ':input[name="menu[type]"]' => ['value' => 'tab']
+        ],
+        [
+          ':input[name="menu[type]"]' => ['value' => 'default tab']
+        ],
+      ]
+    ];
+
     $form['options']['menu']['link'] = [
       '#title' => 'Make menu link',
       '#type' => 'checkbox',
       '#default_value' => !empty($display->options['menu']['link']) ?: FALSE,
-      '#prefix' => '<div class="views-right-70">'
+      '#prefix' => '<div class="views-right-70">',
+      '#states' => $states
     ];
     $form['options']['menu']['local_task_only'] = [
       '#title' => 'Local task only',
       '#type' => 'checkbox',
       '#default_value' => !empty($display->options['menu']['local_task_only']) ?: FALSE,
-      '#description' => t('If you want a menu tab to be created with the local task')
+      '#description' => t('If you want a menu tab to be created with the local task'),
+      '#states' => $states
     ];
     $form['options']['menu']['local_task_parent'] = [
       '#title' => 'Local task parent',
       '#type' => 'select',
       '#options' => views_menu_extra_local_task_options(),
       '#default_value' => !empty($display->options['menu']['local_task_parent']) ? $display->options['menu']['local_task_parent'] : "",
-      '#suffix' => '</div>'
+      '#suffix' => '</div>',
+      '#states' => $states
     ];
   }
 }
