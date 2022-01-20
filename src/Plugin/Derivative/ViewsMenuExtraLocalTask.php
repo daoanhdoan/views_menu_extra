@@ -16,6 +16,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ViewsMenuExtraLocalTask extends ViewsLocalTask
 {
   /**
+   * {@inheritdoc}
+   */
+  public function getDerivativeDefinitions($base_plugin_definition)
+  {
+    $this->derivatives = [];
+    return $this->derivatives;
+  }
+
+  /**
    * Alters base_route and parent_id into the views local tasks.
    */
   public function alterLocalTasks(&$local_tasks)
@@ -44,8 +53,7 @@ class ViewsMenuExtraLocalTask extends ViewsLocalTask
         if (!empty($menu['local_task_parent'])) {
           $local_tasks['views_view:' . $plugin_id]['parent_id'] = $menu['local_task_parent'];
           unset($local_tasks['views_view:' . $plugin_id]['base_route']);
-        }
-        else if (!empty($menu['local_task_only'])) {
+        } else if (!empty($menu['local_task_only'])) {
           // Find out the parent route.
           // @todo Find out how to find both the root and parent tab.
           $path = $executable->display_handler->getPath();
