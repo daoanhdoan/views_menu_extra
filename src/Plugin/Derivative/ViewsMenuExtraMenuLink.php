@@ -30,7 +30,7 @@ class ViewsMenuExtraMenuLink extends ViewsMenuLink {
       $menu_link_id = 'views.' . $view_id . "." . str_replace('/', '.', $display_id);
 
       $menu = $display->getOption('menu');
-      if (!empty($menu['type']) && ($menu['type'] == 'tab' && !empty($menu['link']))) {
+      if (!empty($menu['type']) && (in_array($menu['type'], ['tab', 'default tab']) && !empty($menu['link']))) {
         $links[$menu_link_id] = [];
         // Some views might override existing paths, so we have to set the route
         // name based upon the altering.
