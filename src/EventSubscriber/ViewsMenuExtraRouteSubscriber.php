@@ -103,7 +103,7 @@ class ViewsMenuExtraRouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    foreach ($this->getViewsDisplayIDsWithRoute() as $pair) {
+    /*foreach ($this->getViewsDisplayIDsWithRoute() as $pair) {
       list($view_id, $display_id) = explode('.', $pair);
 
       $route_name = "view.{$view_id}.$display_id";
@@ -125,7 +125,7 @@ class ViewsMenuExtraRouteSubscriber extends RouteSubscriberBase {
         }
         $collection->add($route_name, $route);
       }
-    }
+    }*/
   }
 
   /**

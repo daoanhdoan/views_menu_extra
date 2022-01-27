@@ -64,6 +64,7 @@ function views_menu_extra_form_views_ui_edit_display_form_alter(&$form, FormStat
       '#suffix' => '</div>',
       '#states' => $states
     ];
+    $form['options']['menu']['parent']['#states']['visible'][] = [':input[name="menu[link]"]' => ['checked' => TRUE]];
   }
 }
 
